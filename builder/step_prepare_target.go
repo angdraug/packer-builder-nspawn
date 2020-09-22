@@ -25,7 +25,7 @@ func (s *StepPrepareTarget) Run(ctx context.Context, state multistep.StateBag) m
 			}
 		}
 	} else {
-		tempDir, err := ioutil.TempDir("", "")
+		tempDir, err := ioutil.TempDir("/var/lib/machines", "nspawn-debootstrap-")
 		if err != nil {
 			state.Put("error", err)
 			return multistep.ActionHalt

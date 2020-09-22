@@ -1,11 +1,8 @@
 package builder
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"log"
-	"os/exec"
 
 	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
@@ -18,6 +15,7 @@ func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) mul
 	ui := state.Get("ui").(packer.Ui)
 
 	args := []string{
+		"/usr/sbin/debootstrap",
 		"--include=systemd-container",
 		fmt.Sprintf("--cache-dir=%s", config.CacheDir),
 	}
@@ -26,16 +24,7 @@ func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) mul
 	}
 	args = append(args, config.Suite, config.Target, config.Mirror)
 
-	cmd := exec.Command("/usr/sbin/debootstrap", args...)
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	ui.Say(fmt.Sprintf("Running debootstrap: %s", cmd))
-	err := cmd.Run()
-	log.Printf("stdout: %s", stdout)
-	log.Printf("stderr: %s", stderr)
-	if err != nil {
+	if err := Run(ui, args...); err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}

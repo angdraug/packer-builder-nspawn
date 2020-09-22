@@ -65,6 +65,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	steps := []multistep.Step{
 		&StepPrepareTarget{},
 		&StepDebootstrap{},
+		&StepProvision{},
 	}
 
 	state := new(multistep.BasicStateBag)
