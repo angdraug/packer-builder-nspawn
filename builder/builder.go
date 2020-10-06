@@ -88,7 +88,7 @@ type Artifact struct {
 
 func (*Artifact) BuilderId() string { return BuilderId }
 
-func (a *Artifact) Files() []string { return nil }
+func (a *Artifact) Files() []string { return []string{a.dir} }
 
 func (a *Artifact) Id() string { return a.dir }
 

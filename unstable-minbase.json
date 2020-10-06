@@ -1,8 +1,27 @@
 {
+  "variables": {
+    "machine": "base-{{strftime `%Y%m%d`}}-{{uuid}}"
+  },
   "builders": [
     {
       "type": "nspawn-debootstrap",
-      "variant": "minbase"
+      "variant": "minbase",
+      "target": "/var/lib/machines/{{user `machine`}}"
     }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "shell-local",
+        "only": ["nspawn-debootstrap"],
+        "inline": [
+          "tar --zstd -C /var/lib/machines/{{user `machine`}} -cf {{user `machine`}}.tar.zst ."
+        ]
+      },
+      {
+        "type": "artifice",
+        "files": ["{{user `machine`}}.tar.zst"]
+      }
+    ]
   ]
 }
