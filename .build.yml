@@ -1,0 +1,20 @@
+image: debian/sid
+packages:
+  - debootstrap
+  - golang-go
+  - systemd-container
+  - zstd
+sources:
+  - https://git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap
+environment:
+  project: packer-builder-nspawn-debootstrap
+tasks:
+  # packer recommends docker.io, that mucks up network in build VM
+  - setup_packer: |
+      sudo apt-get --no-install-recommends --yes install packer
+  - binary: |
+      cd ${project}
+      go build
+  - machine: |
+      cd ${project}
+      sudo packer build unstable-minbase.json

@@ -6,7 +6,7 @@ This plugin uses debootstrap to create an image suitable for use with systemd-ns
 
 ```
 apt install debootstrap packer golang-go
-git clone https://github.com/angdraug/packer-builder-nspawn-debootstrap
+git clone https://git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap
 cd packer-builder-nspawn-debootstrap
 go build
 packer build unstable-minbase.json
