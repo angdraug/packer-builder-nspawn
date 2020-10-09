@@ -22,7 +22,7 @@ func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) mul
 	if config.Variant != "" {
 		args = append(args, fmt.Sprintf("--variant=%s", config.Variant))
 	}
-	args = append(args, config.Suite, config.Target, config.Mirror)
+	args = append(args, config.Suite, config.Path(), config.Mirror)
 
 	if err := Run(ui, args...); err != nil {
 		state.Put("error", err)

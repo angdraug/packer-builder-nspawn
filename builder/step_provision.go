@@ -21,7 +21,7 @@ func (s *StepProvision) Run(ctx context.Context, state multistep.StateBag) multi
 
 	args := []string{
 		"/usr/bin/systemd-nspawn",
-		"-D", config.Target,
+		"-M", config.PackerBuildName,
 		"-U", "-P",
 		"sh", "-c", command,
 	}

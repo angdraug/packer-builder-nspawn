@@ -6,17 +6,14 @@
     {
       "type": "nspawn-debootstrap",
       "variant": "minbase",
-      "target": "/var/lib/machines/{{user `machine`}}"
+      "name": "{{user `machine`}}"
     }
   ],
   "post-processors": [
     [
       {
         "type": "shell-local",
-        "only": ["nspawn-debootstrap"],
-        "inline": [
-          "tar --zstd -C /var/lib/machines/{{user `machine`}} -cf {{user `machine`}}.tar.zst ."
-        ]
+        "command": "tar --zstd -C /var/lib/machines/{{user `machine`}} -cf {{user `machine`}}.tar.zst ."
       },
       {
         "type": "artifice",
