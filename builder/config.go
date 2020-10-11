@@ -34,7 +34,7 @@ func (c *Config) Prepare(raws ...interface{}) error {
 	}
 
 	if c.Mirror == "" {
-		c.Mirror = "http://deb.debian.org/debian"
+		c.Mirror = "https://deb.debian.org/debian"
 	}
 
 	if c.CacheDir == "" {
