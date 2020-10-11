@@ -5,18 +5,17 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/packer/helper/multistep"
-	"github.com/hashicorp/packer/packer"
 )
 
 type StepDebootstrap struct{}
 
 func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
-	ui := state.Get("ui").(packer.Ui)
+	exec := state.Get("exec").(ExecWrapper)
 
 	args := []string{
 		"/usr/sbin/debootstrap",
-		"--include=systemd-container",
+		"--include=apt-utils,iputils-ping,netbase,procps,systemd-container",
 		fmt.Sprintf("--cache-dir=%s", config.CacheDir),
 	}
 	if config.Variant != "" {
@@ -24,7 +23,7 @@ func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) mul
 	}
 	args = append(args, config.Suite, config.Path(), config.Mirror)
 
-	if err := Run(ui, args...); err != nil {
+	if err := exec.Run(args...); err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}

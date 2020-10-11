@@ -15,7 +15,7 @@ func (s *StepPrepareTarget) Run(ctx context.Context, state multistep.StateBag) m
 	ui := state.Get("ui").(packer.Ui)
 
 	if _, err := os.Stat(config.Path()); err == nil && config.PackerForce {
-		ui.Say("Deleting previous target directory...")
+		ui.Say("Deleting previous target directory")
 		if err := os.RemoveAll(config.Path()); err != nil {
 			state.Put("error", err)
 			return multistep.ActionHalt
@@ -28,7 +28,9 @@ func (s *StepPrepareTarget) Run(ctx context.Context, state multistep.StateBag) m
 func (s *StepPrepareTarget) Cleanup(state multistep.StateBag) {
 	_, cancelled := state.GetOk(multistep.StateCancelled)
 	_, halted := state.GetOk(multistep.StateHalted)
-	if !(cancelled || halted) { return }
+	if !(cancelled || halted) {
+		return
+	}
 
 	config := state.Get("config").(*Config)
 	os.RemoveAll(config.Path())

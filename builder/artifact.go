@@ -7,7 +7,7 @@ import (
 
 type Artifact struct {
 	machine string
-	path string
+	path    string
 }
 
 func (*Artifact) BuilderId() string { return BuilderId }

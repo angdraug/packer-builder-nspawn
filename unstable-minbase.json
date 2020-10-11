@@ -9,6 +9,14 @@
       "name": "{{user `machine`}}"
     }
   ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "DEBIAN_FRONTEND=noninteractive apt-get install -y less vim-tiny"
+      ]
+    }
+  ],
   "post-processors": [
     [
       {
