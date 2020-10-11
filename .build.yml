@@ -17,4 +17,6 @@ tasks:
       go build
   - machine: |
       cd ${project}
+      sudo systemctl start systemd-networkd.service
+      sudo systemctl start systemd-resolved.service
       sudo packer build unstable-minbase.json
