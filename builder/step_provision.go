@@ -2,7 +2,6 @@ package builder
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/packer/common"
 	"github.com/hashicorp/packer/helper/multistep"
@@ -19,7 +18,7 @@ func (s *StepProvision) Run(ctx context.Context, state multistep.StateBag) multi
 	machine := config.PackerBuildName
 
 	command := `echo pts/0 > /etc/securetty && ` +
-		fmt.Sprintf(`echo %s > /etc/hostname &&`, machine) +
+		`rm /etc/hostname && ` +
 		`systemctl enable systemd-networkd.service && ` +
 		`systemctl enable systemd-resolved.service && ` +
 		`echo 'APT::Install-Recommends "False";' > /etc/apt/apt.conf.d/60no-install-recommends`
