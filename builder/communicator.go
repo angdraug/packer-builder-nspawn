@@ -35,7 +35,7 @@ func (c *Communicator) Upload(dst string, r io.Reader, fi *os.FileInfo) error {
 }
 
 func (c *Communicator) UploadDir(dst string, src string, exclude []string) error {
-	args := []string{"/usr/bin/machinectl", "copy-to", src, dst}
+	args := []string{"/usr/bin/machinectl", "copy-to", c.machine, src, dst}
 	return c.exec.Run(args...)
 }
 
@@ -45,7 +45,7 @@ func (c *Communicator) Download(src string, w io.Writer) error {
 }
 
 func (c *Communicator) DownloadDir(src string, dst string, exclude []string) error {
-	args := []string{"/usr/bin/machinectl", "copy-from", src, dst}
+	args := []string{"/usr/bin/machinectl", "copy-from", c.machine, src, dst}
 	return c.exec.Run(args...)
 }
 

@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/hashicorp/packer/packer/plugin"
 	"git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap/builder"
+	"github.com/hashicorp/packer/packer/plugin"
 )
 
 func main() {
 	server, err := plugin.Server()
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	server.RegisterBuilder(new(builder.Builder))
 	server.Serve()
 }
