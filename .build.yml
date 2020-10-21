@@ -1,7 +1,8 @@
 image: debian/sid
 packages:
-  - debootstrap
   - golang-go
+  - debootstrap
+  - libglib2.0-bin
   - systemd-container
   - zstd
 sources:

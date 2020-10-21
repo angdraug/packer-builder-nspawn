@@ -6,7 +6,8 @@ systemd-nspawn.
 ## Quick Start
 
 ```
-sudo apt-get install --no-install-recommends debootstrap packer golang-go
+sudo apt-get install --no-install-recommends \
+ debootstrap golang-go libglib2.0-bin packer systemd-container zstd
 git clone https://git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap
 cd packer-builder-nspawn-debootstrap
 go build
@@ -16,10 +17,11 @@ sudo packer build unstable-minbase.json
 ## Setup
 
 Prerequisites:
-- `golang-go` to build this plugin from source
-- `packer` (the Debian package recommends docker, you don't need that)
 - `debootstrap` to generate a minimal viable chroot image
-- `systemd-container` to install nspawn and related tools
+- `golang-go` to build this plugin from source
+- `libglib2.0-bin` to monitor container status with `gdbus`
+- `packer` (the Debian package recommends docker, you don't need that)
+- `systemd-container` systemd-nspawn and related tools
 - (optional) `zstd` for faster image tarball compression
 
 In most cases, you'll want your container to be able to connect to the network
@@ -91,6 +93,10 @@ All configuration options for this plugin are optional.
 - `machines_dir` - Absolute path to the directory where systemd-nspawn expects
   to find the container chroots. Unless you know what you're doing, keep the
   default `/var/lib/machines`.
+
+- `timeout` - The timeout in seconds to wait for the container to start. The
+  default is 20 seconds.
+
 
 See [unstable-minbase.json](/unstable-minbase.json) for an example of how to
 build a minimal base image with a unique name, install additional software in

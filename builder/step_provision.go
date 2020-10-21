@@ -2,7 +2,9 @@ package builder
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/coreos/go-systemd/v22/dbus"
 	"github.com/hashicorp/packer/common"
 	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
@@ -33,8 +35,19 @@ func (s *StepProvision) Run(ctx context.Context, state multistep.StateBag) multi
 		return multistep.ActionHalt
 	}
 
+	finished, err := exec.WaitFor("Startup finished", s.monitor(machine)...)
+	if err != nil {
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
+
 	if err := exec.Run("/usr/bin/machinectl", "start", machine); err != nil {
 		state.Put("error", err)
+		return multistep.ActionHalt
+	}
+
+	if !<-finished {
+		state.Put("error", fmt.Errorf("Startup timed out after %s", config.Timeout))
 		return multistep.ActionHalt
 	}
 
@@ -54,11 +67,25 @@ func (s *StepProvision) Run(ctx context.Context, state multistep.StateBag) multi
 func (s *StepProvision) Cleanup(state multistep.StateBag) {
 	config := state.Get("config").(*Config)
 	exec := state.Get("exec").(ExecWrapper)
+	machine := config.PackerBuildName
 
 	exec.Run(
-		"/usr/bin/systemd-run", "-M", config.PackerBuildName, "-P", "--wait", "-q",
+		"/usr/bin/systemd-run", "-M", machine, "-P", "--wait", "-q",
 		"/usr/bin/apt-get", "clean",
 	)
 
-	exec.Run("/usr/bin/machinectl", "stop", config.PackerBuildName)
+	deadChan, err := exec.WaitFor("dead", s.monitor(machine)...)
+	exec.Run("/usr/bin/machinectl", "stop", machine)
+	if err == nil {
+		<-deadChan
+	}
+}
+
+func (s *StepProvision) monitor(machine string) []string {
+	return []string{
+		"/usr/bin/gdbus", "monitor", "--system", "--dest", "org.freedesktop.systemd1",
+		"--object-path", fmt.Sprintf(
+			"/org/freedesktop/systemd1/unit/systemd_2dnspawn_40%s_2eservice",
+			dbus.PathBusEscape(machine)),
+	}
 }

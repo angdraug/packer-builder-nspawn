@@ -38,7 +38,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	state.Put("config", &b.config)
 	state.Put("hook", hook)
 	state.Put("ui", ui)
-	state.Put("exec", ExecWrapper{ui})
+	state.Put("exec", ExecWrapper{ui, b.config.Timeout})
 
 	b.runner = common.NewRunner(steps, b.config.PackerConfig, ui)
 	b.runner.Run(ctx, state)
