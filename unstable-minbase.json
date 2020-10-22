@@ -11,10 +11,8 @@
   ],
   "provisioners": [
     {
-      "type": "shell",
-      "inline": [
-        "DEBIAN_FRONTEND=noninteractive apt-get install -y less vim-tiny"
-      ]
+      "type": "apt",
+      "packages": ["less", "vim-tiny"]
     }
   ],
   "post-processors": [

@@ -40,6 +40,12 @@ tarball, because it is several times faster than gzip at the same or better
 compression ratio. You don't need zstd if you use a different method for
 archiving and delivering your images.
 
+For compatibility with the Debian package of Packer that is built with a newer
+version of [ugorji-go-codec](https://github.com/ugorji/go) than the one pinned
+in Packer source, this plugin's `go.mod` includes a replace line to import a
+similarly patched version of Packer source. To use this plugin with Packer
+built from unpatched upstream source, comment out that replace line.
+
 ## Security
 
 In Debian, unprivileged user namespaces are disabled by default and have to be
@@ -96,7 +102,6 @@ All configuration options for this plugin are optional.
 
 - `timeout` - The timeout in seconds to wait for the container to start. The
   default is 20 seconds.
-
 
 See [unstable-minbase.json](/unstable-minbase.json) for an example of how to
 build a minimal base image with a unique name, install additional software in

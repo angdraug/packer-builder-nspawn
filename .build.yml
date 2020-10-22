@@ -7,17 +7,22 @@ packages:
   - zstd
 sources:
   - https://git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap
+  - https://git.sr.ht/~angdraug/packer-provisioner-apt
 environment:
-  project: packer-builder-nspawn-debootstrap
+  builder: packer-builder-nspawn-debootstrap
+  provisioner: packer-provisioner-apt
 tasks:
   # packer recommends docker.io, that mucks up network in build VM
   - setup_packer: |
       sudo apt-get --no-install-recommends --yes install packer
   - binary: |
-      cd ${project}
+      cd ~/${provisioner}
+      go build
+      ln -s ~/${provisioner}/${provisioner} ~/${builder}/
+      cd ${builder}
       go build
   - machine: |
-      cd ${project}
+      cd ${builder}
       sudo systemctl start systemd-networkd.service
       sudo systemctl start systemd-resolved.service
       sudo packer build unstable-minbase.json

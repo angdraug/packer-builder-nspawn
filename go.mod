@@ -8,3 +8,5 @@ require (
 	github.com/hashicorp/packer v1.6.4
 	github.com/zclconf/go-cty v1.5.0
 )
+
+replace github.com/hashicorp/packer => github.com/angdraug/packer v1.6.4-ugorji-go-v1.1.13
