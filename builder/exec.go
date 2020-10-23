@@ -18,10 +18,27 @@ type ExecWrapper struct {
 }
 
 func (e *ExecWrapper) Run(args ...string) error {
-	return e.wrap(func(cmd *exec.Cmd) error {
-		e.ui.Say(fmt.Sprintf("Running: %s", cmd))
-		return cmd.Run()
-	}, args...)
+	cmd := exec.Command(args[0], args[1:]...)
+	e.ui.Say(fmt.Sprintf("Running: %s", cmd))
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	go e.scan(stdout, e.ui.Say)
+	go e.scan(stderr, e.ui.Error)
+
+	return cmd.Wait()
 }
 
 func (e *ExecWrapper) Read(w io.Writer, args ...string) error {
@@ -68,15 +85,12 @@ func (e *ExecWrapper) WaitFor(match string, args ...string) (chan bool, error) {
 
 	foundChan := make(chan bool)
 
-	go func() {
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			if strings.Contains(scanner.Text(), match) {
-				foundChan <- true
-				cmd.Process.Kill()
-			}
+	go e.scan(stdout, func(line string) {
+		if strings.Contains(line, match) {
+			foundChan <- true
+			cmd.Process.Kill()
 		}
-	}()
+	})
 
 	go func() {
 		<-time.After(e.timeout)
@@ -105,4 +119,11 @@ func (e *ExecWrapper) wrap(f func(*exec.Cmd) error, args ...string) error {
 	}
 
 	return err
+}
+
+func (e *ExecWrapper) scan(r io.Reader, f func(string)) {
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		f(scanner.Text())
+	}
 }
