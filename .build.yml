@@ -19,7 +19,7 @@ tasks:
       cd ~/${provisioner}
       go build
       ln -s ~/${provisioner}/${provisioner} ~/${builder}/
-      cd ${builder}
+      cd ~/${builder}
       go build
   - machine: |
       cd ${builder}
