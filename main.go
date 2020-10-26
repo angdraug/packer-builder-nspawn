@@ -1,7 +1,7 @@
 package main
 
 import (
-	"git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap/builder"
+	"git.sr.ht/~angdraug/packer-builder-nspawn/builder"
 	"github.com/hashicorp/packer/packer/plugin"
 )
 

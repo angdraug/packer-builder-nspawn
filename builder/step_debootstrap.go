@@ -11,7 +11,7 @@ type StepDebootstrap struct{}
 
 func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
-	exec := state.Get("exec").(ExecWrapper)
+	machine := state.Get("machine").(*Machine)
 
 	args := []string{
 		"/usr/sbin/debootstrap",
@@ -21,9 +21,20 @@ func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) mul
 	if config.Variant != "" {
 		args = append(args, fmt.Sprintf("--variant=%s", config.Variant))
 	}
-	args = append(args, config.Suite, config.Path(), config.Mirror)
+	args = append(args, config.Suite, machine.Path(), config.Mirror)
 
-	if err := exec.Run(args...); err != nil {
+	if err := machine.RunLocal(args...); err != nil {
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
+
+	command := `echo pts/0 > /etc/securetty && ` +
+		`rm /etc/hostname && ` +
+		`systemctl enable systemd-networkd.service && ` +
+		`systemctl enable systemd-resolved.service && ` +
+		`echo 'APT::Install-Recommends "False";' > /etc/apt/apt.conf.d/60no-install-recommends`
+
+	if err := machine.Chroot("/bin/sh", "-c", command); err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
@@ -31,4 +42,7 @@ func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) mul
 	return multistep.ActionContinue
 }
 
-func (s *StepDebootstrap) Cleanup(state multistep.StateBag) {}
+func (s *StepDebootstrap) Cleanup(state multistep.StateBag) {
+	machine := state.Get("machine").(*Machine)
+	machine.Chroot("/usr/bin/apt-get", "clean")
+}

@@ -4,7 +4,6 @@ package builder
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/hashicorp/packer/common"
@@ -15,6 +14,12 @@ import (
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 
+	// Import container image from a URL, file, or a directory tree, in a
+	// format recognized by import-* and pull-* commands of machinectl(1).
+	Import string `mapstructure:"import"`
+	// Name of a local container to clone. When neither import nor clone
+	// options are set, a new image will be created with debootstrap(8).
+	Clone string `mapstructure:"clone"`
 	// Distribution release code name as recognized by debootstrap(8).
 	// The default is `unstable`.
 	Suite string `mapstructure:"suite"`
@@ -44,25 +49,33 @@ func (c *Config) Prepare(raws ...interface{}) error {
 		return err
 	}
 
-	if c.Suite == "" {
-		c.Suite = "unstable"
+	if len(c.Import) != 0 && len(c.Clone) != 0 {
+		return fmt.Errorf("Setting both import and clone is not allowed")
 	}
 
-	if c.Mirror == "" {
-		c.Mirror = "https://deb.debian.org/debian"
-	}
+	if len(c.Import) == 0 && len(c.Clone) == 0 {
+		// validate debootstrap options
 
-	if c.CacheDir == "" {
-		c.CacheDir = "/var/cache/apt/archives"
+		if c.Suite == "" {
+			c.Suite = "unstable"
+		}
+
+		if c.Mirror == "" {
+			c.Mirror = "https://deb.debian.org/debian"
+		}
+
+		if c.CacheDir == "" {
+			c.CacheDir = "/var/cache/apt/archives"
+		}
+
+		cache, err := os.Stat(c.CacheDir)
+		if err != nil || !cache.IsDir() {
+			return fmt.Errorf("Cache directory is not a directory: %s", c.CacheDir)
+		}
 	}
 
 	if c.MachinesDir == "" {
 		c.MachinesDir = "/var/lib/machines"
-	}
-
-	cache, err := os.Stat(c.CacheDir)
-	if err != nil || !cache.IsDir() {
-		return fmt.Errorf("Cache directory is not a directory: %s", c.CacheDir)
 	}
 
 	if c.Timeout == 0 {
@@ -70,8 +83,4 @@ func (c *Config) Prepare(raws ...interface{}) error {
 	}
 
 	return nil
-}
-
-func (c *Config) Path() string {
-	return filepath.Join(c.MachinesDir, c.PackerBuildName)
 }

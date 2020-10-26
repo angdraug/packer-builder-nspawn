@@ -6,10 +6,10 @@ packages:
   - systemd-container
   - zstd
 sources:
-  - https://git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap
+  - https://git.sr.ht/~angdraug/packer-builder-nspawn
   - https://git.sr.ht/~angdraug/packer-provisioner-apt
 environment:
-  builder: packer-builder-nspawn-debootstrap
+  builder: packer-builder-nspawn
   provisioner: packer-provisioner-apt
 tasks:
   # packer recommends docker.io, that mucks up network in build VM
@@ -25,4 +25,4 @@ tasks:
       cd ${builder}
       sudo systemctl start systemd-networkd.service
       sudo systemctl start systemd-resolved.service
-      sudo packer build unstable-minbase.json
+      sudo ./test.sh

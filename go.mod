@@ -1,4 +1,4 @@
-module git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap
+module git.sr.ht/~angdraug/packer-builder-nspawn
 
 go 1.15
 

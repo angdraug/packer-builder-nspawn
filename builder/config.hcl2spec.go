@@ -16,11 +16,14 @@ type FlatConfig struct {
 	PackerOnError       *string           `mapstructure:"packer_on_error" cty:"packer_on_error" hcl:"packer_on_error"`
 	PackerUserVars      map[string]string `mapstructure:"packer_user_variables" cty:"packer_user_variables" hcl:"packer_user_variables"`
 	PackerSensitiveVars []string          `mapstructure:"packer_sensitive_variables" cty:"packer_sensitive_variables" hcl:"packer_sensitive_variables"`
+	Import              *string           `mapstructure:"import" cty:"import" hcl:"import"`
+	Clone               *string           `mapstructure:"clone" cty:"clone" hcl:"clone"`
 	Suite               *string           `mapstructure:"suite" cty:"suite" hcl:"suite"`
 	Mirror              *string           `mapstructure:"mirror" cty:"mirror" hcl:"mirror"`
 	CacheDir            *string           `mapstructure:"cache_dir" cty:"cache_dir" hcl:"cache_dir"`
 	MachinesDir         *string           `mapstructure:"machines_dir" cty:"machines_dir" hcl:"machines_dir"`
 	Variant             *string           `mapstructure:"variant" cty:"variant" hcl:"variant"`
+	Timeout             *string           `mapstructure:"timeout" cty:"timeout" hcl:"timeout"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -42,11 +45,14 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"packer_on_error":            &hcldec.AttrSpec{Name: "packer_on_error", Type: cty.String, Required: false},
 		"packer_user_variables":      &hcldec.AttrSpec{Name: "packer_user_variables", Type: cty.Map(cty.String), Required: false},
 		"packer_sensitive_variables": &hcldec.AttrSpec{Name: "packer_sensitive_variables", Type: cty.List(cty.String), Required: false},
+		"import":                     &hcldec.AttrSpec{Name: "import", Type: cty.String, Required: false},
+		"clone":                      &hcldec.AttrSpec{Name: "clone", Type: cty.String, Required: false},
 		"suite":                      &hcldec.AttrSpec{Name: "suite", Type: cty.String, Required: false},
 		"mirror":                     &hcldec.AttrSpec{Name: "mirror", Type: cty.String, Required: false},
 		"cache_dir":                  &hcldec.AttrSpec{Name: "cache_dir", Type: cty.String, Required: false},
 		"machines_dir":               &hcldec.AttrSpec{Name: "machines_dir", Type: cty.String, Required: false},
 		"variant":                    &hcldec.AttrSpec{Name: "variant", Type: cty.String, Required: false},
+		"timeout":                    &hcldec.AttrSpec{Name: "timeout", Type: cty.String, Required: false},
 	}
 	return s
 }

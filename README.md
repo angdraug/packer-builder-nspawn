@@ -1,15 +1,15 @@
-# Packer builder for systemd-nspawn/debootstrap
+# Packer builder for systemd-nspawn
 
-This plugin uses debootstrap to create an image suitable for use with
-systemd-nspawn.
+This plugin can build and provision systemd-nspawn containers. It can import or
+clone an existing base image, or generate one from scratch using debootstrap.
 
 ## Quick Start
 
 ```
 sudo apt-get install --no-install-recommends \
  debootstrap golang-go libglib2.0-bin packer systemd-container zstd
-git clone https://git.sr.ht/~angdraug/packer-builder-nspawn-debootstrap
-cd packer-builder-nspawn-debootstrap
+git clone https://git.sr.ht/~angdraug/packer-builder-nspawn
+cd packer-builder-nspawn
 go build
 sudo packer build unstable-minbase.json
 ```
@@ -22,7 +22,7 @@ Prerequisites:
 - `libglib2.0-bin` to monitor container status with `gdbus`
 - `packer` (the Debian package recommends docker, you don't need that)
 - `systemd-container` systemd-nspawn and related tools
-- (optional) `zstd` for faster image tarball compression
+- (optional) `zstd` for creating and importing .tar.zst images
 
 In most cases, you'll want your container to be able to connect to the network
 to provision itself, for that you need to enable systemd-networkd and
@@ -35,10 +35,10 @@ systemctl enable systemd-resolved.service
 systemctl start systemd-resolved.service
 ```
 
-The included example `unstable-minbase.json` uses zstd to compress the image
-tarball, because it is several times faster than gzip at the same or better
-compression ratio. You don't need zstd if you use a different method for
-archiving and delivering your images.
+The included example `nspawn.pkr.hcl` uses zstd to compress the image tarball,
+it is several times faster than gzip at the same or better compression ratio.
+You don't need zstd if you use a different method for archiving and delivering
+your images.
 
 For compatibility with the Debian package of Packer that is built with a newer
 version of [ugorji-go-codec](https://github.com/ugorji/go) than the one pinned
@@ -75,8 +75,16 @@ systemd-nspawn ... --private-users=0 --private-users-chown
 All configuration options for this plugin are optional.
 
 - `name` - Standard Packer build name parameter. The default is the builder
-  name `nspawn-debootstrap`. This will be used as container name and will be
-  configured as the hostname within the container.
+  name `nspawn`. This will be used as container name and will be configured as
+  the hostname within the container.
+
+- `import` - Import container image from a URL, file, or a directory tree, in a
+  format recognized by `import-*` and `pull-*` commands of
+  [machinectl(1)](https://www.freedesktop.org/software/systemd/man/machinectl.html).
+
+- `clone` - Name of a local container to clone. When neither `import` nor
+  `clone` options are set, a new image will be created with
+  [debootstrap(8)](https://manpages.debian.org/unstable/debootstrap/debootstrap.8.en.html).
 
 - `suite` - Distribution release code name as recognized by
   [debootstrap(8)](https://manpages.debian.org/unstable/debootstrap/debootstrap.8.en.html).
@@ -100,12 +108,12 @@ All configuration options for this plugin are optional.
   to find the container chroots. Unless you know what you're doing, keep the
   default `/var/lib/machines`.
 
-- `timeout` - The timeout in seconds to wait for the container to start. The
-  default is 20 seconds.
+- `timeout` - The timeout in seconds to wait for container startup and
+  shutdown. The default is 20 seconds.
 
-See [unstable-minbase.json](/unstable-minbase.json) for an example of how to
-build a minimal base image with a unique name, install additional software in
-it during provisioning, and archive it into a tarball.
+See [nspawn.pkr.hcl](nspawn.pkr.hcl) for an example of how to build a minimal
+base container, archive it into a tarball, clone it a new container, and import
+a container image from the archived tarball.
 
 ## Copying
 

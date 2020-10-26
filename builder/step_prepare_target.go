@@ -2,7 +2,7 @@ package builder
 
 import (
 	"context"
-	"os"
+	"fmt"
 
 	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
@@ -13,11 +13,17 @@ type StepPrepareTarget struct{}
 func (s *StepPrepareTarget) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
 	ui := state.Get("ui").(packer.Ui)
+	machine := state.Get("machine").(*Machine)
 
-	if _, err := os.Stat(config.Path()); err == nil && config.PackerForce {
-		ui.Say("Deleting previous target directory")
-		if err := os.RemoveAll(config.Path()); err != nil {
-			state.Put("error", err)
+	if machine.Exists() {
+		if config.PackerForce {
+			ui.Say(fmt.Sprintf("Container %s already exists, removing", machine.name))
+			if err := machine.Remove(); err != nil {
+				state.Put("error", err)
+				return multistep.ActionHalt
+			}
+		} else {
+			state.Put("error", fmt.Errorf("Container %s already exists", machine.name))
 			return multistep.ActionHalt
 		}
 	}
@@ -32,6 +38,6 @@ func (s *StepPrepareTarget) Cleanup(state multistep.StateBag) {
 		return
 	}
 
-	config := state.Get("config").(*Config)
-	os.RemoveAll(config.Path())
+	machine := state.Get("machine").(*Machine)
+	machine.Remove()
 }
