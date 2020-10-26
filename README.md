@@ -11,7 +11,7 @@ sudo apt-get install --no-install-recommends \
 git clone https://git.sr.ht/~angdraug/packer-builder-nspawn
 cd packer-builder-nspawn
 go build
-sudo packer build unstable-minbase.json
+packer build -only='*.base' .
 ```
 
 ## Setup
