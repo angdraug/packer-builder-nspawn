@@ -84,11 +84,13 @@ func (m *Machine) Run(args ...string) error {
 }
 
 func (m *Machine) Read(src string, w io.Writer) error {
-	return m.exec.Read(w, "/bin/sh", "-c", fmt.Sprintf("cat < '%s'", src))
+	args := m.run("/bin/sh", "-c", fmt.Sprintf("cat < '%s'", src))
+	return m.exec.Read(w, args...)
 }
 
 func (m *Machine) Write(dst string, r io.Reader) error {
-	return m.exec.Write(r, "/bin/sh", "-c", fmt.Sprintf("cat > '%s'", dst))
+	args := m.run("/bin/sh", "-c", fmt.Sprintf("cat > '%s'", dst))
+	return m.exec.Write(r, args...)
 }
 
 func (m *Machine) CopyTo(src string, dst string) error {
