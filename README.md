@@ -22,6 +22,7 @@ Prerequisites:
 - `libglib2.0-bin` to monitor container status with `gdbus`
 - `packer` (the Debian package recommends docker, you don't need that)
 - `systemd-container` systemd-nspawn and related tools
+- (optional) `packer-provisioner-apt` for installing deb packages
 - (optional) `zstd` for creating and importing .tar.zst images
 
 In most cases, you'll want your container to be able to connect to the network
@@ -33,6 +34,19 @@ systemctl enable systemd-networkd.service
 systemctl start systemd-networkd.service
 systemctl enable systemd-resolved.service
 systemctl start systemd-resolved.service
+```
+
+The recommended way to install deb packages when provisioning images is
+[packer-provisioner-apt](https://git.sr.ht/~angdraug/packer-provisioner-apt).
+When installing that plugin from source, symlink it into your working directory
+so that Packer can find it:
+
+```
+cd ..
+git clone https://git.sr.ht/~angdraug/packer-provisioner-apt
+cd packer-provisioner-apt
+go build
+ln -s $(pwd)/packer-provisioner-apt ../packer-builder-nspawn
 ```
 
 The included example `nspawn.pkr.hcl` uses zstd to compress the image tarball,
