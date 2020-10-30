@@ -24,6 +24,7 @@ func (s *StepPrepareTarget) Run(ctx context.Context, state multistep.StateBag) m
 			}
 		} else {
 			state.Put("error", fmt.Errorf("Container %s already exists", machine.name))
+			state.Put("keep", true)
 			return multistep.ActionHalt
 		}
 	}
@@ -35,6 +36,10 @@ func (s *StepPrepareTarget) Cleanup(state multistep.StateBag) {
 	_, cancelled := state.GetOk(multistep.StateCancelled)
 	_, halted := state.GetOk(multistep.StateHalted)
 	if !(cancelled || halted) {
+		return
+	}
+
+	if _, keep := state.GetOk("keep"); keep {
 		return
 	}
 
