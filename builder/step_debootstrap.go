@@ -32,7 +32,19 @@ func (s *StepDebootstrap) Run(ctx context.Context, state multistep.StateBag) mul
 		`rm /etc/hostname && ` +
 		`systemctl enable systemd-networkd.service && ` +
 		`systemctl enable systemd-resolved.service && ` +
-		`echo 'APT::Install-Recommends "False";' > /etc/apt/apt.conf.d/60no-install-recommends`
+		`echo 'APT::Install-Recommends "False";' ` +
+			`> /etc/apt/apt.conf.d/60no-install-recommends && ` +
+		`echo 'path-exclude /usr/share/doc/*\n` +
+			`path-include /usr/share/doc/*/copyright\n` +
+			`path-exclude /usr/share/info/*\n` +
+			`path-exclude /usr/share/lintian/*\n` +
+			`path-exclude /usr/share/man/*' ` +
+			`> /etc/dpkg/dpkg.cfg.d/no-documentation && ` +
+		`find /usr \( -name copyright -prune \) -o \( ` +
+			`-path '/usr/share/doc/*' -o ` +
+			`-path '/usr/share/info/*' -o ` +
+			`-path '/usr/share/lintian/*' -o ` +
+			`-path '/usr/share/man/*' \) -type f -print | xargs rm -f`
 
 	if err := machine.Chroot("/bin/sh", "-c", command); err != nil {
 		state.Put("error", err)
