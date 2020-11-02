@@ -33,4 +33,7 @@ func (s *StepProvision) Run(ctx context.Context, state multistep.StateBag) multi
 func (s *StepProvision) Cleanup(state multistep.StateBag) {
 	machine := state.Get("machine").(*Machine)
 	machine.Stop()
+	command := `rm -f /var/lib/dbus/machine-id && ` +
+		`cat /dev/null > /etc/machine-id`
+	machine.Chroot("/bin/sh", "-c", command)
 }
