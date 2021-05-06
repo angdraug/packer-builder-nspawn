@@ -26,7 +26,7 @@ func (m *Machine) Exists() bool {
 }
 
 func (m *Machine) Remove() error {
-	args := []string{"/usr/bin/machinectl", "remove", m.name}
+	args := []string{"machinectl", "remove", m.name}
 	return m.exec.Run(args...)
 }
 
@@ -50,7 +50,7 @@ func (m *Machine) RunAndWait(command string, marker string) error {
 		return err
 	}
 
-	if err := m.exec.Run("/usr/bin/machinectl", command, m.name); err != nil {
+	if err := m.exec.Run("machinectl", command, m.name); err != nil {
 		return err
 	}
 
@@ -94,17 +94,17 @@ func (m *Machine) Write(dst string, r io.Reader) error {
 }
 
 func (m *Machine) CopyTo(src string, dst string) error {
-	args := []string{"/usr/bin/machinectl", "copy-to", m.name, src, dst}
+	args := []string{"machinectl", "copy-to", m.name, src, dst}
 	return m.exec.Run(args...)
 }
 
 func (m *Machine) CopyFrom(src string, dst string) error {
-	args := []string{"/usr/bin/machinectl", "copy-from", m.name, src, dst}
+	args := []string{"machinectl", "copy-from", m.name, src, dst}
 	return m.exec.Run(args...)
 }
 
 func (m *Machine) Clone(base string) error {
-	args := []string{"/usr/bin/machinectl", "clone", base, m.name}
+	args := []string{"machinectl", "clone", base, m.name}
 	return m.exec.Run(args...)
 }
 
@@ -161,6 +161,6 @@ func (m *Machine) Import(image string) error {
 	default:
 		return fmt.Errorf("Image %s isn't a URL, a file, or a directory", image)
 	}
-	args := []string{"/usr/bin/machinectl", command, image, m.name}
+	args := []string{"machinectl", command, image, m.name}
 	return m.exec.Run(args...)
 }
