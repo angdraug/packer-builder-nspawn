@@ -2,7 +2,7 @@ package main
 
 import (
 	"git.sr.ht/~angdraug/packer-builder-nspawn/builder"
-	"github.com/hashicorp/packer/packer/plugin"
+	"github.com/hashicorp/packer-plugin-sdk/plugin"
 )
 
 func main() {

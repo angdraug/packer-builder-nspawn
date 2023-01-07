@@ -3,9 +3,9 @@ package builder
 import (
 	"context"
 
-	"github.com/hashicorp/packer/common"
-	"github.com/hashicorp/packer/helper/multistep"
-	"github.com/hashicorp/packer/packer"
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
+	"github.com/hashicorp/packer-plugin-sdk/packer"
 )
 
 type StepProvision struct{}
@@ -19,7 +19,7 @@ func (s *StepProvision) Run(ctx context.Context, state multistep.StateBag) multi
 
 	comm := &Communicator{machine}
 
-	hookData := common.PopulateProvisionHookData(state)
+	hookData := commonsteps.PopulateProvisionHookData(state)
 
 	ui.Say("Running the provision hook")
 	if err := hook.Run(ctx, packer.HookProvision, ui, comm, hookData); err != nil {

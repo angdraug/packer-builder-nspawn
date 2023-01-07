@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/hashicorp/packer/packer"
+	"github.com/hashicorp/packer-plugin-sdk/packer"
 )
 
 type Communicator struct {
